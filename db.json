@@ -1,0 +1,105 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "full_name": "Admin User",
+      "email": "azat@mail.com",
+      "password_hash": "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
+      "role": "admin"
+    },
+    {
+      "id": 2,
+      "full_name": "kizaru",
+      "email": "kizaru@gmail.com",
+      "password_hash": "$2a$10$ZonjshwkhM0R44h3Qsp8mO6Sm3jaHkzq3XRuSc.jv7SELbOYQE/5W",
+      "role": "user"
+    },
+    {
+      "id": 3,
+      "full_name": "odetari",
+      "email": "odetari@gmail.com",
+      "password_hash": "$2a$10$pmIhubKGrX6EIUnNgymQbOfc3Jy3QxzGroYx.SEK8BiOg.wL4MRNW",
+      "role": "user"
+    },
+    {
+      "id": 4,
+      "full_name": "Azamat",
+      "email": "azeke@gmail.com",
+      "password_hash": "$2a$10$PN9VouY8bvGkVRc0IyIjtOjk3X2YrhelEbK0ivSuQymDKpilyxP9i",
+      "role": "user"
+    }
+  ],
+  "categories": [
+    {
+      "id": 1,
+      "name": "Men"
+    },
+    {
+      "id": 2,
+      "name": "Women"
+    },
+    {
+      "id": 3,
+      "name": "Unisex"
+    }
+  ],
+  "products": [
+    {
+      "id": 2,
+      "name": "Slim Fit Chinos",
+      "price": 69,
+      "category_id": 1,
+      "image": "./src/images/men111.jpg"
+    },
+    {
+      "id": 3,
+      "name": "White costume",
+      "price": 89,
+      "category_id": 2,
+      "image": "./src/images/women111.jpg"
+    },
+    {
+      "id": 4,
+      "name": "Black Slim fit pants",
+      "price": 59,
+      "category_id": 3,
+      "image": "./src/images/unisex212.jpg"
+    },
+    {
+      "id": 5,
+      "name": "Trench Coat",
+      "price": 79,
+      "category_id": 2,
+      "image": "./src/images/women212.jpg"
+    },
+    {
+      "id": 7,
+      "name": "Kofta2",
+      "price": 23,
+      "category_id": 1,
+      "image": "https://i2.storeland.net/2/8628/186270952/075a3e/kofta-muzhskaya-chernaya.jpg"
+    }
+  ],
+  "orders": [
+    {
+      "id": 1,
+      "user_id": 4,
+      "total": 207,
+      "status": "pending",
+      "items": [
+        {
+          "id": 6,
+          "name": "basic long sleeve",
+          "price": 15,
+          "qty": 2
+        },
+        {
+          "id": 4,
+          "name": "Black Slim fit pants",
+          "price": 59,
+          "qty": 3
+        }
+      ]
+    }
+  ]
+}
