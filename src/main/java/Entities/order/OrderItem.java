@@ -1,6 +1,6 @@
-package Entities.Order;
+package java.Entities.order;
 
-import Entities.Product;
+import java.Entities.Product;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;

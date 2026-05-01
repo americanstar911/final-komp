@@ -1,7 +1,8 @@
-package Controllers;
+package java.Controllers;
 
-import Entities.Order.*;
-import Repositories.OrderRepository;
+import java.Entities.order.Order;
+import java.Entities.order.OrderItem;
+import java.Repositories.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
