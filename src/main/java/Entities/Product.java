@@ -1,6 +1,5 @@
-package Product;
+package java.Entities;
 
-import Category.Category;
 import jakarta.persistence.*;
 import lombok.*;
 

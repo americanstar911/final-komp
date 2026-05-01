@@ -63,11 +63,11 @@ export default function OrdersPage({ ordersApi }) {
             );
 
             dispatchReduxAction(
-                addNotification({ message: 'Order removed.', type: 'info' })
+                addNotification({ message: 'Entities.Order removed.', type: 'info' })
             );
         } catch (networkError) {
             dispatchReduxAction(
-                addNotification({ message: 'Failed to delete Order.', type: 'error' })
+                addNotification({ message: 'Failed to delete Entities.Order.', type: 'error' })
             );
         }
 
@@ -99,11 +99,11 @@ export default function OrdersPage({ ordersApi }) {
             );
 
             dispatchReduxAction(
-                addNotification({ message: 'Order cancelled.', type: 'info' })
+                addNotification({ message: 'Entities.Order cancelled.', type: 'info' })
             );
         } catch (networkError) {
             dispatchReduxAction(
-                addNotification({ message: 'Failed to cancel Order.', type: 'error' })
+                addNotification({ message: 'Failed to cancel Entities.Order.', type: 'error' })
             );
         }
 
@@ -206,38 +206,38 @@ export default function OrdersPage({ ordersApi }) {
                         <div
                             key={oneOrder.id}
 
-                            className={`Order-card ${thisOrderIsCancelled ? 'Order-card-cancelled' : ''}`}
+                            className={`Entities.Order-card ${thisOrderIsCancelled ? 'Entities.Order-card-cancelled' : ''}`}
                         >
 
-                            <div className="Order-header">
-                                <h3 className="Order-number">Order #{oneOrder.id}</h3>
+                            <div className="Entities.Order-header">
+                                <h3 className="Entities.Order-number">Entities.Order #{oneOrder.id}</h3>
                                 <span
-                                    className={`Order-status Order-status-${oneOrder.status}`}
+                                    className={`Entities.Order-status Entities.Order-status-${oneOrder.status}`}
                                 >
                                     {oneOrder.status}
                                 </span>
                             </div>
-                            <div className="Order-items">
+                            <div className="Entities.Order-items">
                                 {oneOrder.items?.map((oneOrderItem, rowIndex) => (
-                                    <div key={rowIndex} className="Order-item-row">
+                                    <div key={rowIndex} className="Entities.Order-item-row">
                                         {oneOrderItem.name} x {oneOrderItem.qty} - ${oneOrderItem.price}
                                     </div>
                                 ))}
                             </div>
-                            <div className="Order-address-row">
+                            <div className="Entities.Order-address-row">
                                 {addressEditFormOpenForThisOrder ? (
-                                    <div className="Order-address-edit">
-                                        <label className="Order-address-label">
+                                    <div className="Entities.Order-address-edit">
+                                        <label className="Entities.Order-address-label">
                                             New delivery address
                                         </label>
                                         <input
                                             type="text"
                                             value={addressEditInputValue}
                                             onChange={handleAddressEditInputChange}
-                                            className="Order-address-input"
+                                            className="Entities.Order-address-input"
                                             placeholder="Street, building, apartment, city"
                                         />
-                                        <div className="Order-address-edit-actions">
+                                        <div className="Entities.Order-address-edit-actions">
                                             <button
                                                 onClick={handleConfirmSaveNewAddress}
                                                 className="primary-action-btn"
@@ -254,20 +254,20 @@ export default function OrdersPage({ ordersApi }) {
                                     </div>
                                 ) : (
                                     <>
-                                        <span className="Order-address-label">
+                                        <span className="Entities.Order-address-label">
                                             Delivery address:
                                         </span>
-                                        <span className="Order-address-value">
+                                        <span className="Entities.Order-address-value">
                                             {oneOrder.address || '— not provided —'}
                                         </span>
                                     </>
                                 )}
                             </div>
-                            <div className="Order-footer">
-                                <strong className="Order-total">
+                            <div className="Entities.Order-footer">
+                                <strong className="Entities.Order-total">
                                     Total: ${Number(oneOrder.total).toFixed(2)}
                                 </strong>
-                                <div className="Order-action-group">
+                                <div className="Entities.Order-action-group">
                                     {currentUserIsRegularCustomer &&
                                         !thisOrderIsCancelled &&
                                         !addressEditFormOpenForThisOrder && (
@@ -288,9 +288,9 @@ export default function OrdersPage({ ordersApi }) {
                                             onClick={() =>
                                                 handleRequestCancelOrder(oneOrder.id)
                                             }
-                                            className="cancel-Order-btn"
+                                            className="cancel-Entities.Order-btn"
                                         >
-                                            Cancel Order
+                                            Cancel Entities.Order
                                         </button>
                                     )}
                                     {currentUserCanDeleteOrders && !thisOrderIsCancelled && (
@@ -304,7 +304,7 @@ export default function OrdersPage({ ordersApi }) {
                                         </button>
                                     )}
                                     {currentUserCanDeleteOrders && thisOrderIsCancelled && (
-                                        <span className="Order-locked-label">
+                                        <span className="Entities.Order-locked-label">
                                             Cancelled — locked
                                         </span>
                                     )}
@@ -316,13 +316,13 @@ export default function OrdersPage({ ordersApi }) {
             </div>
             <ConfirmModal
                 isOpen={orderPendingDeleteId !== null}
-                message="Are you sure you want to delete this Order? This action cannot be undone."
+                message="Are you sure you want to delete this Entities.Order? This action cannot be undone."
                 onConfirm={handleConfirmDeleteOrder}
                 onCancel={handleCancelDeleteOrder}
             />
             <ConfirmModal
                 isOpen={orderPendingCancelId !== null}
-                message="Are you sure you want to cancel this Order? This action cannot be undone."
+                message="Are you sure you want to cancel this Entities.Order? This action cannot be undone."
                 onConfirm={handleConfirmCancelOrder}
                 onCancel={handleCancelCancelOrder}
             />

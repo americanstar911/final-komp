@@ -113,7 +113,7 @@ export default function CartPage({ ordersApi }) {
             });
 
             dispatchReduxAction(
-                addNotification({ message: 'Order placed successfully!', type: 'success' })
+                addNotification({ message: 'Entities.Order placed successfully!', type: 'success' })
             );
 
             clearCart();
@@ -202,7 +202,7 @@ export default function CartPage({ ordersApi }) {
                         className="primary-action-btn"
                         disabled={isPlacingOrder}
                     >
-                        {isPlacingOrder ? 'Placing...' : 'Place Order'}
+                        {isPlacingOrder ? 'Placing...' : 'Place Entities.Order'}
                     </button>
                 </div>
             </div>

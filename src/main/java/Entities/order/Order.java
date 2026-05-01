@@ -1,6 +1,7 @@
-package Order;
+package java.Entities.order;
 
-import User.User;
+import java.Entities.User;
+
 import jakarta.persistence.*;
 import lombok.*;
 

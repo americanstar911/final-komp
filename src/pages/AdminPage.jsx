@@ -67,7 +67,7 @@ export default function AdminPage({ productsApi, usersApi, ordersApi, categories
             );
 
             dispatchReduxAction(
-                addNotification({ message: 'Product deleted.', type: 'info' })
+                addNotification({ message: 'Entities.User.Product deleted.', type: 'info' })
             );
         } catch (networkError) {
             dispatchReduxAction(
@@ -97,7 +97,7 @@ export default function AdminPage({ productsApi, usersApi, ordersApi, categories
             );
 
             dispatchReduxAction(
-                addNotification({ message: 'Category deleted.', type: 'info' })
+                addNotification({ message: 'Entities.Category deleted.', type: 'info' })
             );
         } catch (networkError) {
             dispatchReduxAction(
@@ -126,7 +126,7 @@ export default function AdminPage({ productsApi, usersApi, ordersApi, categories
             );
 
             dispatchReduxAction(
-                addNotification({ message: 'User removed.', type: 'info' })
+                addNotification({ message: 'Entities.User removed.', type: 'info' })
             );
         } catch (networkError) {
             dispatchReduxAction(
@@ -165,11 +165,11 @@ export default function AdminPage({ productsApi, usersApi, ordersApi, categories
             );
 
             dispatchReduxAction(
-                addNotification({ message: 'Order removed.', type: 'info' })
+                addNotification({ message: 'Entities.Order removed.', type: 'info' })
             );
         } catch (networkError) {
             dispatchReduxAction(
-                addNotification({ message: 'Failed to delete Order.', type: 'error' })
+                addNotification({ message: 'Failed to delete Entities.Order.', type: 'error' })
             );
         }
 
@@ -275,42 +275,42 @@ export default function AdminPage({ productsApi, usersApi, ordersApi, categories
                         return (
                             <div
                                 key={oneOrder.id}
-                                className={`admin-Order-card ${
-                                    thisOrderIsCancelled ? 'admin-Order-card-cancelled' : ''
+                                className={`admin-Entities.Order-card ${
+                                    thisOrderIsCancelled ? 'admin-Entities.Order-card-cancelled' : ''
                                 }`}
                             >
 
-                                <div className="admin-Order-header">
-                                    <strong className="admin-Order-number">
-                                        Order #{oneOrder.id}
+                                <div className="admin-Entities.Order-header">
+                                    <strong className="admin-Entities.Order-number">
+                                        Entities.Order #{oneOrder.id}
                                     </strong>
-                                    <span className="admin-Order-buyer">
+                                    <span className="admin-Entities.Order-buyer">
                                         by {resolveUserNameFromId(oneOrder.user_id)}
                                     </span>
                                     <span
-                                        className={`admin-Order-status admin-Order-status-${oneOrder.status}`}
+                                        className={`admin-Entities.Order-status admin-Entities.Order-status-${oneOrder.status}`}
                                     >
                                         {oneOrder.status}
                                     </span>
                                 </div>
-                                <div className="admin-Order-items">
+                                <div className="admin-Entities.Order-items">
                                     {oneOrder.items?.map((oneOrderItem, rowIndex) => (
-                                        <div key={rowIndex} className="admin-Order-item-row">
+                                        <div key={rowIndex} className="admin-Entities.Order-item-row">
                                             {oneOrderItem.name} × {oneOrderItem.qty} —{' '}
                                             ${oneOrderItem.price}
                                         </div>
                                     ))}
                                 </div>
-                                <div className="admin-Order-address">
+                                <div className="admin-Entities.Order-address">
                                     <span className="admin-muted">Address:</span>{' '}
                                     {oneOrder.address || '— not provided —'}
                                 </div>
-                                <div className="admin-Order-footer">
-                                    <strong className="admin-Order-total">
+                                <div className="admin-Entities.Order-footer">
+                                    <strong className="admin-Entities.Order-total">
                                         Total: ${Number(oneOrder.total).toFixed(2)}
                                     </strong>
                                     {thisOrderIsCancelled ? (
-                                        <span className="Order-locked-label">
+                                        <span className="Entities.Order-locked-label">
                                             Cancelled — locked
                                         </span>
                                     ) : (
@@ -352,7 +352,7 @@ export default function AdminPage({ productsApi, usersApi, ordersApi, categories
             />
             <ConfirmModal
                 isOpen={orderPendingDeleteId !== null}
-                message="Are you sure you want to delete this Order? This action cannot be undone."
+                message="Are you sure you want to delete this Entities.Order? This action cannot be undone."
                 onConfirm={handleConfirmDeleteOrder}
                 onCancel={handleCancelDeleteOrder}
             />

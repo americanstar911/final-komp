@@ -1,5 +1,6 @@
-package User;
+package java.Entities;
 
+import java.Entities.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 
