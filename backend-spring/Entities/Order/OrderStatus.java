@@ -1,4 +1,4 @@
-package Order;
+package Entities.Order;
 
 public enum OrderStatus {
     PENDING,

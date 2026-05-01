@@ -1,6 +1,6 @@
 package Controllers;
 
-import Category.Category;
+import Entities.Category;
 import Repositories.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

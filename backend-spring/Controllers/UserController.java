@@ -1,7 +1,7 @@
 package Controllers;
 
 import Repositories.UserRepository;
-import User.*;
+import Entities.User.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;

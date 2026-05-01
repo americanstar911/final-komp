@@ -1,4 +1,4 @@
-package User;
+package Entities;
 
 import jakarta.persistence.*;
 import lombok.*;

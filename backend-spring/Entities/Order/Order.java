@@ -1,6 +1,6 @@
-package Order;
+package Entities.Order;
 
-import User.User;
+import Entities.User;
 import jakarta.persistence.*;
 import lombok.*;
 

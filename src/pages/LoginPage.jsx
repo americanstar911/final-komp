@@ -40,9 +40,9 @@ export default function LoginPage({ usersApi }) {
             const matchingUsersList = await usersByEmailResponse.json();
 
             if (matchingUsersList.length === 0) {
-                setErrorMessage('User not found');
+                setErrorMessage('Entities.User not found');
                 dispatchReduxAction(
-                    addNotification({ message: 'Login failed: User not found', type: 'error' })
+                    addNotification({ message: 'Login failed: Entities.User not found', type: 'error' })
                 );
                 setIsLoggingIn(false);
                 return;

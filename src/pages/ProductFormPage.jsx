@@ -135,10 +135,10 @@ export default function ProductFormPage({ productsApi, categoriesApi }) {
     return (
         <div className="form-page">
             {/* Заголовок меняется в зависимости от режима */}
-            <h2>{productIdFromUrlParam ? 'Edit Product' : 'Add New Product'}</h2>
+            <h2>{productIdFromUrlParam ? 'Edit Entities.User.Product' : 'Add New Entities.User.Product'}</h2>
 
             <form onSubmit={handleProductFormSubmit}>
-                {/* Поле Product Name */}
+                {/* Поле Entities.User.Product Name */}
                 <div className="form-group">
                     <label>Product Name</label>
                     <input
@@ -190,7 +190,7 @@ export default function ProductFormPage({ productsApi, categoriesApi }) {
                 {/* Кнопки — Save (submit) и Cancel (обычная кнопка, type="button") */}
                 <div className="form-actions">
                     <button type="submit" className="btn-add">
-                        {productIdFromUrlParam ? 'Save Changes' : 'Create Product'}
+                        {productIdFromUrlParam ? 'Save Changes' : 'Create Entities.User.Product'}
                     </button>
                     <button
                         type="button"

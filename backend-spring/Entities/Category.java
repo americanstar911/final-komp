@@ -1,6 +1,6 @@
-package Category;
+package Entities;
 
-import Product.Product;
+import Entities.User.Product.Product;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;

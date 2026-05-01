@@ -79,7 +79,7 @@ export default function CategoryFormPage({ categoriesApi }) {
 
     return (
         <div className="form-page">
-            <h2>{categoryIdFromUrlParam ? 'Edit Category' : 'Add New Category'}</h2>
+            <h2>{categoryIdFromUrlParam ? 'Edit Entities.Category' : 'Add New Entities.Category'}</h2>
             <form onSubmit={handleCategoryFormSubmit}>
                 <div className="form-group">
                     <label>Category Name</label>
@@ -96,7 +96,7 @@ export default function CategoryFormPage({ categoriesApi }) {
                             ? 'Saving...'
                             : categoryIdFromUrlParam
                               ? 'Save Changes'
-                              : 'Create Category'}
+                              : 'Create Entities.Category'}
                     </button>
                     <button
                         type="button"

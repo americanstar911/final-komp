@@ -1,6 +1,6 @@
 package Controllers;
 
-import Product.Product;
+import Entities.User.Product.Product;
 import Repositories.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

@@ -1,4 +1,4 @@
-package User;
+package Entities;
 
 public enum UserRole {
     USER,
