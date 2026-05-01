@@ -1,0 +1,48 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+# Ignored default folder with query files
+/queries/
+# Datasource local storage ignored files
+/dataSources/
+/dataSources.local.xml
+# Editor-based HTTP Client requests
+/httpRequests/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Mac
+.DS_Store
+
+# Logs
+*.log
+
+# Node / React
+node_modules/
+dist/
+build/
+.env
+.env.local
+.env.*.local
+
+# Java / Spring
+target/
+out/
+*.class
+
+# Maven / Gradle
+.mvn/wrapper/maven-wrapper.jar
+.gradle/
+build/
+
+# Database local files
+*.db
+*.sqlite
+*.sqlite3
+
+# OS / temp
+tmp/
+temp/

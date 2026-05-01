@@ -169,7 +169,7 @@ export default function AdminPage({ productsApi, usersApi, ordersApi, categories
             );
         } catch (networkError) {
             dispatchReduxAction(
-                addNotification({ message: 'Failed to delete order.', type: 'error' })
+                addNotification({ message: 'Failed to delete Order.', type: 'error' })
             );
         }
 
@@ -275,42 +275,42 @@ export default function AdminPage({ productsApi, usersApi, ordersApi, categories
                         return (
                             <div
                                 key={oneOrder.id}
-                                className={`admin-order-card ${
-                                    thisOrderIsCancelled ? 'admin-order-card-cancelled' : ''
+                                className={`admin-Order-card ${
+                                    thisOrderIsCancelled ? 'admin-Order-card-cancelled' : ''
                                 }`}
                             >
 
-                                <div className="admin-order-header">
-                                    <strong className="admin-order-number">
+                                <div className="admin-Order-header">
+                                    <strong className="admin-Order-number">
                                         Order #{oneOrder.id}
                                     </strong>
-                                    <span className="admin-order-buyer">
+                                    <span className="admin-Order-buyer">
                                         by {resolveUserNameFromId(oneOrder.user_id)}
                                     </span>
                                     <span
-                                        className={`admin-order-status admin-order-status-${oneOrder.status}`}
+                                        className={`admin-Order-status admin-Order-status-${oneOrder.status}`}
                                     >
                                         {oneOrder.status}
                                     </span>
                                 </div>
-                                <div className="admin-order-items">
+                                <div className="admin-Order-items">
                                     {oneOrder.items?.map((oneOrderItem, rowIndex) => (
-                                        <div key={rowIndex} className="admin-order-item-row">
+                                        <div key={rowIndex} className="admin-Order-item-row">
                                             {oneOrderItem.name} × {oneOrderItem.qty} —{' '}
                                             ${oneOrderItem.price}
                                         </div>
                                     ))}
                                 </div>
-                                <div className="admin-order-address">
+                                <div className="admin-Order-address">
                                     <span className="admin-muted">Address:</span>{' '}
                                     {oneOrder.address || '— not provided —'}
                                 </div>
-                                <div className="admin-order-footer">
-                                    <strong className="admin-order-total">
+                                <div className="admin-Order-footer">
+                                    <strong className="admin-Order-total">
                                         Total: ${Number(oneOrder.total).toFixed(2)}
                                     </strong>
                                     {thisOrderIsCancelled ? (
-                                        <span className="order-locked-label">
+                                        <span className="Order-locked-label">
                                             Cancelled — locked
                                         </span>
                                     ) : (
@@ -352,7 +352,7 @@ export default function AdminPage({ productsApi, usersApi, ordersApi, categories
             />
             <ConfirmModal
                 isOpen={orderPendingDeleteId !== null}
-                message="Are you sure you want to delete this order? This action cannot be undone."
+                message="Are you sure you want to delete this Order? This action cannot be undone."
                 onConfirm={handleConfirmDeleteOrder}
                 onCancel={handleCancelDeleteOrder}
             />

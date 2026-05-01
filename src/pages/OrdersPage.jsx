@@ -67,7 +67,7 @@ export default function OrdersPage({ ordersApi }) {
             );
         } catch (networkError) {
             dispatchReduxAction(
-                addNotification({ message: 'Failed to delete order.', type: 'error' })
+                addNotification({ message: 'Failed to delete Order.', type: 'error' })
             );
         }
 
@@ -103,7 +103,7 @@ export default function OrdersPage({ ordersApi }) {
             );
         } catch (networkError) {
             dispatchReduxAction(
-                addNotification({ message: 'Failed to cancel order.', type: 'error' })
+                addNotification({ message: 'Failed to cancel Order.', type: 'error' })
             );
         }
 
@@ -206,38 +206,38 @@ export default function OrdersPage({ ordersApi }) {
                         <div
                             key={oneOrder.id}
 
-                            className={`order-card ${thisOrderIsCancelled ? 'order-card-cancelled' : ''}`}
+                            className={`Order-card ${thisOrderIsCancelled ? 'Order-card-cancelled' : ''}`}
                         >
 
-                            <div className="order-header">
-                                <h3 className="order-number">Order #{oneOrder.id}</h3>
+                            <div className="Order-header">
+                                <h3 className="Order-number">Order #{oneOrder.id}</h3>
                                 <span
-                                    className={`order-status order-status-${oneOrder.status}`}
+                                    className={`Order-status Order-status-${oneOrder.status}`}
                                 >
                                     {oneOrder.status}
                                 </span>
                             </div>
-                            <div className="order-items">
+                            <div className="Order-items">
                                 {oneOrder.items?.map((oneOrderItem, rowIndex) => (
-                                    <div key={rowIndex} className="order-item-row">
+                                    <div key={rowIndex} className="Order-item-row">
                                         {oneOrderItem.name} x {oneOrderItem.qty} - ${oneOrderItem.price}
                                     </div>
                                 ))}
                             </div>
-                            <div className="order-address-row">
+                            <div className="Order-address-row">
                                 {addressEditFormOpenForThisOrder ? (
-                                    <div className="order-address-edit">
-                                        <label className="order-address-label">
+                                    <div className="Order-address-edit">
+                                        <label className="Order-address-label">
                                             New delivery address
                                         </label>
                                         <input
                                             type="text"
                                             value={addressEditInputValue}
                                             onChange={handleAddressEditInputChange}
-                                            className="order-address-input"
+                                            className="Order-address-input"
                                             placeholder="Street, building, apartment, city"
                                         />
-                                        <div className="order-address-edit-actions">
+                                        <div className="Order-address-edit-actions">
                                             <button
                                                 onClick={handleConfirmSaveNewAddress}
                                                 className="primary-action-btn"
@@ -254,20 +254,20 @@ export default function OrdersPage({ ordersApi }) {
                                     </div>
                                 ) : (
                                     <>
-                                        <span className="order-address-label">
+                                        <span className="Order-address-label">
                                             Delivery address:
                                         </span>
-                                        <span className="order-address-value">
+                                        <span className="Order-address-value">
                                             {oneOrder.address || '— not provided —'}
                                         </span>
                                     </>
                                 )}
                             </div>
-                            <div className="order-footer">
-                                <strong className="order-total">
+                            <div className="Order-footer">
+                                <strong className="Order-total">
                                     Total: ${Number(oneOrder.total).toFixed(2)}
                                 </strong>
-                                <div className="order-action-group">
+                                <div className="Order-action-group">
                                     {currentUserIsRegularCustomer &&
                                         !thisOrderIsCancelled &&
                                         !addressEditFormOpenForThisOrder && (
@@ -288,7 +288,7 @@ export default function OrdersPage({ ordersApi }) {
                                             onClick={() =>
                                                 handleRequestCancelOrder(oneOrder.id)
                                             }
-                                            className="cancel-order-btn"
+                                            className="cancel-Order-btn"
                                         >
                                             Cancel Order
                                         </button>
@@ -304,7 +304,7 @@ export default function OrdersPage({ ordersApi }) {
                                         </button>
                                     )}
                                     {currentUserCanDeleteOrders && thisOrderIsCancelled && (
-                                        <span className="order-locked-label">
+                                        <span className="Order-locked-label">
                                             Cancelled — locked
                                         </span>
                                     )}
@@ -316,13 +316,13 @@ export default function OrdersPage({ ordersApi }) {
             </div>
             <ConfirmModal
                 isOpen={orderPendingDeleteId !== null}
-                message="Are you sure you want to delete this order? This action cannot be undone."
+                message="Are you sure you want to delete this Order? This action cannot be undone."
                 onConfirm={handleConfirmDeleteOrder}
                 onCancel={handleCancelDeleteOrder}
             />
             <ConfirmModal
                 isOpen={orderPendingCancelId !== null}
-                message="Are you sure you want to cancel this order? This action cannot be undone."
+                message="Are you sure you want to cancel this Order? This action cannot be undone."
                 onConfirm={handleConfirmCancelOrder}
                 onCancel={handleCancelCancelOrder}
             />
