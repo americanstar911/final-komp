@@ -23,5 +23,5 @@ public class Category {
 
     @JsonIgnore
     @OneToMany(mappedBy = "category")
-    private List<Entities.Product> products;
+    private List<Product> products;
 }
