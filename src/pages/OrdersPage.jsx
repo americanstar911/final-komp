@@ -4,22 +4,17 @@ import { useAuth } from '../context/AuthContext';
 import { useAppDispatch } from '../store';
 import { addNotification } from '../store/notificationSlice';
 import ConfirmModal from '../components/ConfirmModal';
+import api from '../api/api';
 
-export default function OrdersPage({ ordersApi }) {
+export default function OrdersPage() {
     const [allOrders, setAllOrders] = useState([]);
-
     const [isLoadingOrders, setIsLoadingOrders] = useState(true);
-
     const [orderPendingDeleteId, setOrderPendingDeleteId] = useState(null);
-
     const [orderPendingCancelId, setOrderPendingCancelId] = useState(null);
-
     const [orderPendingAddressEditId, setOrderPendingAddressEditId] = useState(null);
-
     const [addressEditInputValue, setAddressEditInputValue] = useState('');
 
     const { user: currentLoggedInUser } = useAuth();
-
     const navigateToRoute = useNavigate();
     const dispatchReduxAction = useAppDispatch();
 
@@ -29,32 +24,29 @@ export default function OrdersPage({ ordersApi }) {
             return;
         }
 
-        const ordersFetchUrl =
-            currentLoggedInUser.role === 'admin'
-                ? ordersApi
-                : `${ordersApi}?user_id=${currentLoggedInUser.id}`;
+        async function loadOrders() {
+            setIsLoadingOrders(true);
 
-        fetch(ordersFetchUrl)
-            .then((fetchResponse) => fetchResponse.json())
-            .then((ordersListFromApi) => {
-                setAllOrders(ordersListFromApi);
-                setIsLoadingOrders(false);
-            })
-            .catch(() => {
-                setIsLoadingOrders(false);
+            try {
+                const response = await api.get(
+                    currentLoggedInUser.role === 'admin' ? '/admin/orders' : '/orders/my'
+                );
+                setAllOrders(response.data);
+            } catch (networkError) {
                 dispatchReduxAction(
                     addNotification({ message: 'Failed to load orders.', type: 'error' })
                 );
-            });
-    }, [currentLoggedInUser, navigateToRoute, ordersApi, dispatchReduxAction]);
+            }
 
-    const handleRequestDeleteOrder = (orderId) => {
-        setOrderPendingDeleteId(orderId);
-    };
+            setIsLoadingOrders(false);
+        }
+
+        loadOrders();
+    }, [currentLoggedInUser, navigateToRoute, dispatchReduxAction]);
 
     const handleConfirmDeleteOrder = async () => {
         try {
-            await fetch(`${ordersApi}/${orderPendingDeleteId}`, { method: 'DELETE' });
+            await api.delete(`/admin/orders/${orderPendingDeleteId}`);
 
             setAllOrders((previousOrdersList) =>
                 previousOrdersList.filter(
@@ -63,34 +55,21 @@ export default function OrdersPage({ ordersApi }) {
             );
 
             dispatchReduxAction(
-                addNotification({ message: 'Entities.Order removed.', type: 'info' })
+                addNotification({ message: 'Order removed.', type: 'info' })
             );
         } catch (networkError) {
             dispatchReduxAction(
-                addNotification({ message: 'Failed to delete Entities.Order.', type: 'error' })
+                addNotification({ message: 'Failed to delete order.', type: 'error' })
             );
         }
 
         setOrderPendingDeleteId(null);
     };
 
-    const handleCancelDeleteOrder = () => {
-        setOrderPendingDeleteId(null);
-    };
-
-    const handleRequestCancelOrder = (orderId) => {
-        setOrderPendingCancelId(orderId);
-    };
-
     const handleConfirmCancelOrder = async () => {
         try {
-            const patchResponse = await fetch(`${ordersApi}/${orderPendingCancelId}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: 'cancelled' }),
-            });
-
-            const updatedOrderRecord = await patchResponse.json();
+            const response = await api.patch(`/orders/${orderPendingCancelId}/cancel`);
+            const updatedOrderRecord = response.data;
 
             setAllOrders((previousOrdersList) =>
                 previousOrdersList.map((oneOrder) =>
@@ -99,28 +78,20 @@ export default function OrdersPage({ ordersApi }) {
             );
 
             dispatchReduxAction(
-                addNotification({ message: 'Entities.Order cancelled.', type: 'info' })
+                addNotification({ message: 'Order cancelled.', type: 'info' })
             );
         } catch (networkError) {
             dispatchReduxAction(
-                addNotification({ message: 'Failed to cancel Entities.Order.', type: 'error' })
+                addNotification({ message: 'Failed to cancel order.', type: 'error' })
             );
         }
 
         setOrderPendingCancelId(null);
     };
 
-    const handleCancelCancelOrder = () => {
-        setOrderPendingCancelId(null);
-    };
-
     const handleRequestChangeOrderAddress = (orderId, currentAddressValue) => {
         setOrderPendingAddressEditId(orderId);
         setAddressEditInputValue(currentAddressValue || '');
-    };
-
-    const handleAddressEditInputChange = (inputChangeEvent) => {
-        setAddressEditInputValue(inputChangeEvent.target.value);
     };
 
     const handleConfirmSaveNewAddress = async () => {
@@ -136,16 +107,11 @@ export default function OrdersPage({ ordersApi }) {
         }
 
         try {
-            const patchResponse = await fetch(
-                `${ordersApi}/${orderPendingAddressEditId}`,
-                {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ address: trimmedNewAddress }),
-                }
-            );
+            const response = await api.patch(`/orders/${orderPendingAddressEditId}/address`, {
+                address: trimmedNewAddress,
+            });
 
-            const updatedOrderRecord = await patchResponse.json();
+            const updatedOrderRecord = response.data;
 
             setAllOrders((previousOrdersList) =>
                 previousOrdersList.map((oneOrder) =>
@@ -171,11 +137,6 @@ export default function OrdersPage({ ordersApi }) {
         }
     };
 
-    const handleCancelChangeOrderAddress = () => {
-        setOrderPendingAddressEditId(null);
-        setAddressEditInputValue('');
-    };
-
     const currentUserCanDeleteOrders = currentLoggedInUser?.role === 'admin';
     const currentUserIsRegularCustomer = currentLoggedInUser?.role !== 'admin';
 
@@ -198,19 +159,16 @@ export default function OrdersPage({ ordersApi }) {
             <div className="orders-list">
                 {allOrders.map((oneOrder) => {
                     const thisOrderIsCancelled = oneOrder.status === 'cancelled';
-
                     const addressEditFormOpenForThisOrder =
                         orderPendingAddressEditId === oneOrder.id;
 
                     return (
                         <div
                             key={oneOrder.id}
-
                             className={`Entities.Order-card ${thisOrderIsCancelled ? 'Entities.Order-card-cancelled' : ''}`}
                         >
-
                             <div className="Entities.Order-header">
-                                <h3 className="Entities.Order-number">Entities.Order #{oneOrder.id}</h3>
+                                <h3 className="Entities.Order-number">Order #{oneOrder.id}</h3>
                                 <span
                                     className={`Entities.Order-status Entities.Order-status-${oneOrder.status}`}
                                 >
@@ -218,9 +176,9 @@ export default function OrdersPage({ ordersApi }) {
                                 </span>
                             </div>
                             <div className="Entities.Order-items">
-                                {oneOrder.items?.map((oneOrderItem, rowIndex) => (
-                                    <div key={rowIndex} className="Entities.Order-item-row">
-                                        {oneOrderItem.name} x {oneOrderItem.qty} - ${oneOrderItem.price}
+                                {oneOrder.items?.map((oneOrderItem) => (
+                                    <div key={oneOrderItem.id} className="Entities.Order-item-row">
+                                        {oneOrderItem.name} x {oneOrderItem.quantity} - ${oneOrderItem.price}
                                     </div>
                                 ))}
                             </div>
@@ -233,7 +191,7 @@ export default function OrdersPage({ ordersApi }) {
                                         <input
                                             type="text"
                                             value={addressEditInputValue}
-                                            onChange={handleAddressEditInputChange}
+                                            onChange={(event) => setAddressEditInputValue(event.target.value)}
                                             className="Entities.Order-address-input"
                                             placeholder="Street, building, apartment, city"
                                         />
@@ -245,7 +203,10 @@ export default function OrdersPage({ ordersApi }) {
                                                 Save
                                             </button>
                                             <button
-                                                onClick={handleCancelChangeOrderAddress}
+                                                onClick={() => {
+                                                    setOrderPendingAddressEditId(null);
+                                                    setAddressEditInputValue('');
+                                                }}
                                                 className="secondary-action-btn"
                                             >
                                                 Cancel
@@ -285,19 +246,15 @@ export default function OrdersPage({ ordersApi }) {
                                         )}
                                     {currentUserIsRegularCustomer && !thisOrderIsCancelled && (
                                         <button
-                                            onClick={() =>
-                                                handleRequestCancelOrder(oneOrder.id)
-                                            }
+                                            onClick={() => setOrderPendingCancelId(oneOrder.id)}
                                             className="cancel-Entities.Order-btn"
                                         >
-                                            Cancel Entities.Order
+                                            Cancel Order
                                         </button>
                                     )}
                                     {currentUserCanDeleteOrders && !thisOrderIsCancelled && (
                                         <button
-                                            onClick={() =>
-                                                handleRequestDeleteOrder(oneOrder.id)
-                                            }
+                                            onClick={() => setOrderPendingDeleteId(oneOrder.id)}
                                             className="delete-text-btn"
                                         >
                                             Delete
@@ -316,15 +273,15 @@ export default function OrdersPage({ ordersApi }) {
             </div>
             <ConfirmModal
                 isOpen={orderPendingDeleteId !== null}
-                message="Are you sure you want to delete this Entities.Order? This action cannot be undone."
+                message="Are you sure you want to delete this order? This action cannot be undone."
                 onConfirm={handleConfirmDeleteOrder}
-                onCancel={handleCancelDeleteOrder}
+                onCancel={() => setOrderPendingDeleteId(null)}
             />
             <ConfirmModal
                 isOpen={orderPendingCancelId !== null}
-                message="Are you sure you want to cancel this Entities.Order? This action cannot be undone."
+                message="Are you sure you want to cancel this order? This action cannot be undone."
                 onConfirm={handleConfirmCancelOrder}
-                onCancel={handleCancelCancelOrder}
+                onCancel={() => setOrderPendingCancelId(null)}
             />
         </div>
     );

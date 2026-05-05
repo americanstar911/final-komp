@@ -1,4 +1,4 @@
-package java.Services;
+package main.java.Services;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

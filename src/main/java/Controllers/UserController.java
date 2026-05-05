@@ -1,7 +1,7 @@
-package java.Controllers;
+package main.java.Controllers;
 
-import java.Entities.User;
-import java.Repositories.UserRepository;
+import main.java.Entities.User;
+import main.java.Repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

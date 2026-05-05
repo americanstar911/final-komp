@@ -1,8 +1,8 @@
-package java.Controllers;
+package main.java.Controllers;
 
-import java.Dto.CategoryRequest;
-import java.Entities.Category;
-import java.Services.CategoryService;
+import main.java.Dto.CategoryRequest;
+import main.java.Entities.Category;
+import main.java.Services.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

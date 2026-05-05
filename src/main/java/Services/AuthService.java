@@ -1,11 +1,11 @@
-package java.Services;
+package main.java.Services;
 
-import java.Dto.AuthResponse;
-import java.Dto.LoginRequest;
-import java.Dto.RegisterRequest;
-import java.Entities.User;
-import java.Entities.UserRole;
-import java.Repositories.UserRepository;
+import main.java.Dto.AuthResponse;
+import main.java.Dto.LoginRequest;
+import main.java.Dto.RegisterRequest;
+import main.java.Entities.User;
+import main.java.Entities.UserRole;
+import main.java.Repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

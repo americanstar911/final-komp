@@ -1,42 +1,59 @@
-package java.Controllers;
+package main.java.Controllers;
 
-import java.Entities.order.Order;
-import java.Entities.order.OrderItem;
-import java.Repositories.OrderRepository;
+import main.java.Dto.CreateOrderRequest;
+import main.java.Dto.OrderResponse;
+import main.java.Dto.UpdateOrderAddressRequest;
+import main.java.Entities.order.Order;
+import main.java.Entities.order.OrderItem;
+import main.java.Repositories.OrderRepository;
 import lombok.RequiredArgsConstructor;
+import main.java.Services.OrderService;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/orders")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public class OrderController {
 
-    private final OrderRepository orderRepository;
+    private final OrderService orderService;
 
-    @GetMapping
-    public List<Order> getOrders(@RequestParam(required = false) Long userId) {
-        if (userId != null) {
-            return orderRepository.findByUserId(userId);
-        }
-
-        return orderRepository.findAll();
+    @PostMapping("/orders")
+    public OrderResponse createOrder(@RequestBody CreateOrderRequest request, Authentication authentication) {
+        return orderService.createOrder(request, authentication);
     }
 
-    @PostMapping
-    public Order addOrder(@RequestBody Order order) {
-        if (order.getItems() != null) {
-            for (OrderItem item : order.getItems()) {
-                item.setOrder(order);
-            }
-        }
-
-        return orderRepository.save(order);
+    @GetMapping("/orders/my")
+    public List<OrderResponse> getMyOrders(Authentication authentication) {
+        return orderService.getMyOrders(authentication);
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteOrder(@PathVariable Long id) {
-        orderRepository.deleteById(id);
+    @PatchMapping("/orders/{id}/cancel")
+    public OrderResponse cancelMyOrder(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
+        return orderService.cancelMyOrder(id, authentication);
+    }
+
+    @PatchMapping("/orders/{id}/address")
+    public OrderResponse updateMyOrderAddress(
+            @PathVariable Long id,
+            @RequestBody UpdateOrderAddressRequest request,
+            Authentication authentication
+    ) {
+        return orderService.updateMyOrderAddress(id, request, authentication);
+    }
+
+    @GetMapping("/admin/orders")
+    public List<OrderResponse> getAllOrders() {
+        return orderService.getAllOrders();
+    }
+
+    @DeleteMapping("/admin/orders/{id}")
+    public void deleteOrderAsAdmin(@PathVariable Long id) {
+        orderService.deleteOrderAsAdmin(id);
     }
 }

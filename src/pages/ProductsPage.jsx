@@ -4,43 +4,48 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useAppDispatch } from '../store';
 import { addNotification } from '../store/notificationSlice';
+import api from '../api/api';
 
-export default function ProductsPage({ productsApi, categoriesApi }) {
+function getProductCategoryId(product) {
+    return product.category?.id || product.categoryId || product.category_id;
+}
+
+export default function ProductsPage() {
     const [allProducts, setAllProducts] = useState([]);
-
     const [allCategories, setAllCategories] = useState([]);
-
     const [selectedCategoryName, setSelectedCategoryName] = useState('all');
 
     const { addToCart } = useCart();
-
     const { user: currentLoggedInUser } = useAuth();
-
     const dispatchReduxAction = useAppDispatch();
-
     const navigateToRoute = useNavigate();
-
     const currentLocationObject = useLocation();
 
     useEffect(() => {
         const queryParamsFromUrl = new URLSearchParams(currentLocationObject.search);
-
         const categoryFromUrl = queryParamsFromUrl.get('category');
-
         setSelectedCategoryName(categoryFromUrl || 'all');
     }, [currentLocationObject.search]);
 
     useEffect(() => {
-        fetch(productsApi)
-            .then((fetchResponse) => fetchResponse.json())
-            .then((productsListFromApi) => setAllProducts(productsListFromApi));
-    }, [productsApi]);
+        async function loadProductsAndCategories() {
+            try {
+                const [productsResponse, categoriesResponse] = await Promise.all([
+                    api.get('/products'),
+                    api.get('/categories'),
+                ]);
 
-    useEffect(() => {
-        fetch(categoriesApi)
-            .then((fetchResponse) => fetchResponse.json())
-            .then((categoriesListFromApi) => setAllCategories(categoriesListFromApi));
-    }, [categoriesApi]);
+                setAllProducts(productsResponse.data);
+                setAllCategories(categoriesResponse.data);
+            } catch (networkError) {
+                dispatchReduxAction(
+                    addNotification({ message: 'Failed to load products.', type: 'error' })
+                );
+            }
+        }
+
+        loadProductsAndCategories();
+    }, [dispatchReduxAction]);
 
     const resolveCategoryNameFromId = (categoryIdToResolve) => {
         const matchingCategoryRow = allCategories.find(
@@ -54,13 +59,9 @@ export default function ProductsPage({ productsApi, categoriesApi }) {
         selectedCategoryName === 'all'
             ? allProducts
             : allProducts.filter(
-                  (oneProduct) =>
-                      resolveCategoryNameFromId(oneProduct.category_id) === selectedCategoryName
-              );
-
-    const handleCategoryFilterButtonClick = (newCategoryName) => {
-        setSelectedCategoryName(newCategoryName);
-    };
+                (oneProduct) =>
+                    resolveCategoryNameFromId(getProductCategoryId(oneProduct)) === selectedCategoryName
+            );
 
     const handleAddProductToCartButtonClick = (productBeingAdded) => {
         if (!currentLoggedInUser) {
@@ -100,7 +101,7 @@ export default function ProductsPage({ productsApi, categoriesApi }) {
             <div className="catalogue-filters">
                 <button
                     key="filter-all"
-                    onClick={() => handleCategoryFilterButtonClick('all')}
+                    onClick={() => setSelectedCategoryName('all')}
                     className={`filter-btn ${selectedCategoryName === 'all' ? 'active' : ''}`}
                 >
                     All
@@ -108,8 +109,7 @@ export default function ProductsPage({ productsApi, categoriesApi }) {
                 {allCategories.map((oneCategory) => (
                     <button
                         key={oneCategory.id}
-                        onClick={() => handleCategoryFilterButtonClick(oneCategory.name)}
-
+                        onClick={() => setSelectedCategoryName(oneCategory.name)}
                         className={`filter-btn ${
                             selectedCategoryName === oneCategory.name ? 'active' : ''
                         }`}
@@ -135,7 +135,7 @@ export default function ProductsPage({ productsApi, categoriesApi }) {
                         <p className="product-name">{oneProduct.name}</p>
                         <p className="product-price">${oneProduct.price}</p>
                         <p className="product-category-label">
-                            {resolveCategoryNameFromId(oneProduct.category_id)}
+                            {resolveCategoryNameFromId(getProductCategoryId(oneProduct))}
                         </p>
                         <div className="product-actions">
                             <button

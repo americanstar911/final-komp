@@ -1,4 +1,4 @@
-package java.Entities.order;
+package main.java.Entities.order;
 
 public enum OrderStatus {
     PENDING,

@@ -1,7 +1,7 @@
-package java.Config;
+package main.java.Config;
 
-import java.Services.CustomUserDetailService;
-import java.Services.JwtService;
+import main.java.Services.CustomUserDetailService;
+import main.java.Services.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

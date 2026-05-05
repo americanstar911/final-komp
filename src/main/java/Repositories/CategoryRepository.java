@@ -1,6 +1,6 @@
-package java.Repositories;
+package main.java.Repositories;
 
-import java.Entities.Category;
+import main.java.Entities.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CategoryRepository extends JpaRepository<Category, Long> {

@@ -1,6 +1,6 @@
-package java.Dto;
+package main.java.Dto;
 
-import java.Entities.UserRole;
+import main.java.Entities.UserRole;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -1,10 +1,10 @@
-package java.Services;
+package main.java.Services;
 
-import java.Dto.ProductRequest;
-import java.Entities.Category;
-import java.Entities.Product;
-import java.Repositories.CategoryRepository;
-import java.Repositories.ProductRepository;
+import main.java.Dto.ProductRequest;
+import main.java.Entities.Category;
+import main.java.Entities.Product;
+import main.java.Repositories.CategoryRepository;
+import main.java.Repositories.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
