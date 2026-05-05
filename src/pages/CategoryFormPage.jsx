@@ -2,52 +2,43 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../store';
 import { addNotification } from '../store/notificationSlice';
+import api from '../api/api';
 
-export default function CategoryFormPage({ categoriesApi }) {
+export default function CategoryFormPage() {
     const { id: categoryIdFromUrlParam } = useParams();
-
     const navigateToRoute = useNavigate();
-
     const dispatchReduxAction = useAppDispatch();
 
     const [categoryNameInputValue, setCategoryNameInputValue] = useState('');
-
+    const [categoryDescriptionInputValue, setCategoryDescriptionInputValue] = useState('');
     const [isSavingCategory, setIsSavingCategory] = useState(false);
 
     useEffect(() => {
         if (!categoryIdFromUrlParam) return;
 
-        fetch(`${categoriesApi}/${categoryIdFromUrlParam}`)
-            .then((fetchResponse) => fetchResponse.json())
-            .then((existingCategoryRecord) => {
-                setCategoryNameInputValue(existingCategoryRecord.name || '');
-            });
-    }, [categoryIdFromUrlParam, categoriesApi]);
+        async function loadCategory() {
+            const response = await api.get(`/categories/${categoryIdFromUrlParam}`);
+            const existingCategoryRecord = response.data;
+            setCategoryNameInputValue(existingCategoryRecord.name || '');
+            setCategoryDescriptionInputValue(existingCategoryRecord.description || '');
+        }
 
-    const handleCategoryNameInputChange = (inputChangeEvent) => {
-        setCategoryNameInputValue(inputChangeEvent.target.value);
-    };
+        loadCategory();
+    }, [categoryIdFromUrlParam]);
 
     const handleCategoryFormSubmit = async (formSubmitEvent) => {
         formSubmitEvent.preventDefault();
 
-        const categoryDataPayload = { name: categoryNameInputValue };
-
-        const httpMethodToUse = categoryIdFromUrlParam ? 'PUT' : 'POST';
-        const fullRequestUrl = categoryIdFromUrlParam
-            ? `${categoriesApi}/${categoryIdFromUrlParam}`
-            : categoriesApi;
+        const categoryDataPayload = {
+            name: categoryNameInputValue,
+            description: categoryDescriptionInputValue,
+        };
 
         setIsSavingCategory(true);
 
         try {
-            await fetch(fullRequestUrl, {
-                method: httpMethodToUse,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(categoryDataPayload),
-            });
-
             if (categoryIdFromUrlParam) {
+                await api.put(`/categories/${categoryIdFromUrlParam}`, categoryDataPayload);
                 dispatchReduxAction(
                     addNotification({
                         message: `Category '${categoryNameInputValue}' updated.`,
@@ -55,6 +46,7 @@ export default function CategoryFormPage({ categoriesApi }) {
                     })
                 );
             } else {
+                await api.post('/categories', categoryDataPayload);
                 dispatchReduxAction(
                     addNotification({
                         message: `Category '${categoryNameInputValue}' created.`,
@@ -73,21 +65,25 @@ export default function CategoryFormPage({ categoriesApi }) {
         setIsSavingCategory(false);
     };
 
-    const handleCancelButtonClick = () => {
-        navigateToRoute('/admin');
-    };
-
     return (
         <div className="form-page">
-            <h2>{categoryIdFromUrlParam ? 'Edit Entities.Category' : 'Add New Entities.Category'}</h2>
+            <h2>{categoryIdFromUrlParam ? 'Edit Category' : 'Add New Category'}</h2>
             <form onSubmit={handleCategoryFormSubmit}>
                 <div className="form-group">
                     <label>Category Name</label>
                     <input
                         type="text"
                         value={categoryNameInputValue}
-                        onChange={handleCategoryNameInputChange}
+                        onChange={(event) => setCategoryNameInputValue(event.target.value)}
                         required
+                    />
+                </div>
+                <div className="form-group">
+                    <label>Description</label>
+                    <input
+                        type="text"
+                        value={categoryDescriptionInputValue}
+                        onChange={(event) => setCategoryDescriptionInputValue(event.target.value)}
                     />
                 </div>
                 <div className="form-actions">
@@ -95,12 +91,12 @@ export default function CategoryFormPage({ categoriesApi }) {
                         {isSavingCategory
                             ? 'Saving...'
                             : categoryIdFromUrlParam
-                              ? 'Save Changes'
-                              : 'Create Entities.Category'}
+                                ? 'Save Changes'
+                                : 'Create Category'}
                     </button>
                     <button
                         type="button"
-                        onClick={handleCancelButtonClick}
+                        onClick={() => navigateToRoute('/admin')}
                         className="btn-cancel"
                     >
                         Cancel

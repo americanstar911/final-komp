@@ -3,97 +3,68 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../store';
 import { addNotification } from '../store/notificationSlice';
 import ConfirmModal from '../components/ConfirmModal';
+import api from '../api/api';
 
-
-export default function ProductFormPage({ productsApi, categoriesApi }) {
-
+export default function ProductFormPage() {
     const { id: productIdFromUrlParam } = useParams();
-
     const navigateToRoute = useNavigate();
-
     const dispatchReduxAction = useAppDispatch();
 
     const [productNameInputValue, setProductNameInputValue] = useState('');
+    const [productDescriptionInputValue, setProductDescriptionInputValue] = useState('');
     const [productPriceInputValue, setProductPriceInputValue] = useState('');
-
+    const [productStockInputValue, setProductStockInputValue] = useState('');
     const [productCategoryIdInputValue, setProductCategoryIdInputValue] = useState('');
     const [productImageUrlInputValue, setProductImageUrlInputValue] = useState('');
-
     const [allCategories, setAllCategories] = useState([]);
-
     const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
     useEffect(() => {
-        
-        if (!productIdFromUrlParam) return;
+        async function loadCategories() {
+            const response = await api.get('/categories');
+            setAllCategories(response.data);
 
-        fetch(`${productsApi}/${productIdFromUrlParam}`)
-            .then((fetchResponse) => fetchResponse.json())
-            .then((existingProductRecord) => {
-               
-                setProductNameInputValue(existingProductRecord.name);
-                setProductPriceInputValue(existingProductRecord.price);
+            if (!productIdFromUrlParam && response.data.length > 0) {
+                setProductCategoryIdInputValue(String(response.data[0].id));
+            }
+        }
 
-                setProductCategoryIdInputValue(String(existingProductRecord.category_id || ''));
-                setProductImageUrlInputValue(existingProductRecord.image || '');
-            });
-    }, [productIdFromUrlParam, productsApi]);
+        loadCategories();
+    }, [productIdFromUrlParam]);
 
     useEffect(() => {
-        fetch(categoriesApi)
-            .then((fetchResponse) => fetchResponse.json())
-            .then((categoriesListFromApi) => {
-                setAllCategories(categoriesListFromApi);
+        if (!productIdFromUrlParam) return;
 
-                if (!productIdFromUrlParam && categoriesListFromApi.length > 0) {
-                    setProductCategoryIdInputValue(String(categoriesListFromApi[0].id));
-                }
-            });
-    }, [categoriesApi, productIdFromUrlParam]);
+        async function loadProduct() {
+            const response = await api.get(`/products/${productIdFromUrlParam}`);
+            const existingProductRecord = response.data;
 
-   
-    const handleProductNameInputChange = (inputChangeEvent) => {
-        setProductNameInputValue(inputChangeEvent.target.value);
-    };
+            setProductNameInputValue(existingProductRecord.name || '');
+            setProductDescriptionInputValue(existingProductRecord.description || '');
+            setProductPriceInputValue(String(existingProductRecord.price || ''));
+            setProductStockInputValue(String(existingProductRecord.stock || ''));
+            setProductCategoryIdInputValue(String(existingProductRecord.category?.id || ''));
+            setProductImageUrlInputValue(existingProductRecord.image || '');
+        }
 
-    const handleProductPriceInputChange = (inputChangeEvent) => {
-        setProductPriceInputValue(inputChangeEvent.target.value);
-    };
+        loadProduct();
+    }, [productIdFromUrlParam]);
 
-    const handleProductCategoryDropdownChange = (selectChangeEvent) => {
-        setProductCategoryIdInputValue(selectChangeEvent.target.value);
-    };
-
-    const handleProductImageUrlInputChange = (inputChangeEvent) => {
-        setProductImageUrlInputValue(inputChangeEvent.target.value);
-    };
-
-    
     const handleProductFormSubmit = async (formSubmitEvent) => {
-    
         formSubmitEvent.preventDefault();
 
         const productDataPayload = {
             name: productNameInputValue,
+            description: productDescriptionInputValue,
             price: Number(productPriceInputValue),
-            category_id: Number(productCategoryIdInputValue),
+            stock: Number(productStockInputValue),
+            categoryId: Number(productCategoryIdInputValue),
             image: productImageUrlInputValue,
         };
 
-        const httpMethodToUse = productIdFromUrlParam ? 'PUT' : 'POST';
-        const fullRequestUrl = productIdFromUrlParam
-            ? `${productsApi}/${productIdFromUrlParam}` 
-            : productsApi;                              
-
         try {
-        
-            await fetch(fullRequestUrl, {
-                method: httpMethodToUse,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(productDataPayload),
-            });
-
             if (productIdFromUrlParam) {
+                await api.put(`/products/${productIdFromUrlParam}`, productDataPayload);
                 dispatchReduxAction(
                     addNotification({
                         message: `Product '${productNameInputValue}' updated.`,
@@ -101,6 +72,7 @@ export default function ProductFormPage({ productsApi, categoriesApi }) {
                     })
                 );
             } else {
+                await api.post('/products', productDataPayload);
                 dispatchReduxAction(
                     addNotification({
                         message: `Product '${productNameInputValue}' created successfully.`,
@@ -111,64 +83,63 @@ export default function ProductFormPage({ productsApi, categoriesApi }) {
 
             navigateToRoute('/admin');
         } catch (networkError) {
-           
             dispatchReduxAction(
                 addNotification({ message: 'Failed to save product.', type: 'error' })
             );
         }
     };
 
-    const handleCancelButtonClick = () => {
-        setIsCancelModalOpen(true);
-    };
-
-    const handleConfirmCancel = () => {
-        setIsCancelModalOpen(false);
-        navigateToRoute('/admin');
-    };
-
-    const handleDismissCancelModal = () => {
-        setIsCancelModalOpen(false);
-    };
-
-
     return (
         <div className="form-page">
-            {/* Заголовок меняется в зависимости от режима */}
-            <h2>{productIdFromUrlParam ? 'Edit Entities.User.Product' : 'Add New Entities.User.Product'}</h2>
+            <h2>{productIdFromUrlParam ? 'Edit Product' : 'Add New Product'}</h2>
 
             <form onSubmit={handleProductFormSubmit}>
-                {/* Поле Entities.User.Product Name */}
                 <div className="form-group">
                     <label>Product Name</label>
                     <input
                         type="text"
                         value={productNameInputValue}
-                        onChange={handleProductNameInputChange}
+                        onChange={(event) => setProductNameInputValue(event.target.value)}
                         required
                     />
                 </div>
 
-                {/* Поле Price — type="number" фильтрует ввод только цифр */}
+                <div className="form-group">
+                    <label>Description</label>
+                    <input
+                        type="text"
+                        value={productDescriptionInputValue}
+                        onChange={(event) => setProductDescriptionInputValue(event.target.value)}
+                    />
+                </div>
+
                 <div className="form-group">
                     <label>Price ($)</label>
                     <input
                         type="number"
                         value={productPriceInputValue}
-                        onChange={handleProductPriceInputChange}
+                        onChange={(event) => setProductPriceInputValue(event.target.value)}
                         required
                     />
                 </div>
 
-                {/* <select> категории — опции строятся ДИНАМИЧЕСКИ из allCategories */}
+                <div className="form-group">
+                    <label>Stock</label>
+                    <input
+                        type="number"
+                        value={productStockInputValue}
+                        onChange={(event) => setProductStockInputValue(event.target.value)}
+                        required
+                    />
+                </div>
+
                 <div className="form-group">
                     <label>Category</label>
                     <select
                         value={productCategoryIdInputValue}
-                        onChange={handleProductCategoryDropdownChange}
+                        onChange={(event) => setProductCategoryIdInputValue(event.target.value)}
                         required
                     >
-                        {/* Одна <option> на каждую категорию из БД */}
                         {allCategories.map((oneCategory) => (
                             <option key={oneCategory.id} value={oneCategory.id}>
                                 {oneCategory.name}
@@ -177,24 +148,22 @@ export default function ProductFormPage({ productsApi, categoriesApi }) {
                     </select>
                 </div>
 
-                {/* Поле Image URL — не обязательное, у товара может не быть картинки */}
                 <div className="form-group">
                     <label>Image URL</label>
                     <input
                         type="text"
                         value={productImageUrlInputValue}
-                        onChange={handleProductImageUrlInputChange}
+                        onChange={(event) => setProductImageUrlInputValue(event.target.value)}
                     />
                 </div>
 
-                {/* Кнопки — Save (submit) и Cancel (обычная кнопка, type="button") */}
                 <div className="form-actions">
                     <button type="submit" className="btn-add">
-                        {productIdFromUrlParam ? 'Save Changes' : 'Create Entities.User.Product'}
+                        {productIdFromUrlParam ? 'Save Changes' : 'Create Product'}
                     </button>
                     <button
                         type="button"
-                        onClick={handleCancelButtonClick}
+                        onClick={() => setIsCancelModalOpen(true)}
                         className="btn-cancel"
                     >
                         Cancel
@@ -202,12 +171,11 @@ export default function ProductFormPage({ productsApi, categoriesApi }) {
                 </div>
             </form>
 
-            {/* Модалка подтверждения отмены */}
             <ConfirmModal
                 isOpen={isCancelModalOpen}
                 message="Are you sure you want to cancel? Any unsaved changes will be lost."
-                onConfirm={handleConfirmCancel}
-                onCancel={handleDismissCancelModal}
+                onConfirm={() => navigateToRoute('/admin')}
+                onCancel={() => setIsCancelModalOpen(false)}
             />
         </div>
     );

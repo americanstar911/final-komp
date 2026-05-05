@@ -5,10 +5,10 @@ import { useAuth } from '../context/AuthContext';
 import { useAppDispatch } from '../store';
 import { addNotification } from '../store/notificationSlice';
 import ConfirmModal from '../components/ConfirmModal';
+import api from '../api/api';
 
-export default function CartPage({ ordersApi }) {
+export default function CartPage() {
     const navigateToRoute = useNavigate();
-
     const { user: currentLoggedInUser } = useAuth();
 
     const {
@@ -20,24 +20,9 @@ export default function CartPage({ ordersApi }) {
     } = useCart();
 
     const dispatchReduxAction = useAppDispatch();
-
     const [cartItemPendingDeleteId, setCartItemPendingDeleteId] = useState(null);
-
     const [isPlacingOrder, setIsPlacingOrder] = useState(false);
-
     const [deliveryAddressInputValue, setDeliveryAddressInputValue] = useState('');
-
-    const handleIncreaseItemQuantity = (productId, currentQuantity) => {
-        updateQty(productId, currentQuantity + 1);
-    };
-
-    const handleDecreaseItemQuantity = (productId, currentQuantity) => {
-        updateQty(productId, currentQuantity - 1);
-    };
-
-    const handleRequestRemoveCartItem = (productId) => {
-        setCartItemPendingDeleteId(productId);
-    };
 
     const handleConfirmRemoveCartItem = () => {
         const cartItemBeingRemoved = allCartLineItems.find(
@@ -54,11 +39,6 @@ export default function CartPage({ ordersApi }) {
         }
 
         removeFromCart(cartItemPendingDeleteId);
-
-        setCartItemPendingDeleteId(null);
-    };
-
-    const handleCancelRemoveCartItem = () => {
         setCartItemPendingDeleteId(null);
     };
 
@@ -67,10 +47,6 @@ export default function CartPage({ ordersApi }) {
         dispatchReduxAction(
             addNotification({ message: 'Cart cleared.', type: 'info' })
         );
-    };
-
-    const handleDeliveryAddressInputChange = (inputChangeEvent) => {
-        setDeliveryAddressInputValue(inputChangeEvent.target.value);
     };
 
     const handlePlaceOrderButtonClick = async () => {
@@ -93,34 +69,26 @@ export default function CartPage({ ordersApi }) {
         setIsPlacingOrder(true);
 
         try {
-            const newOrderPayload = {
-                user_id: currentLoggedInUser.id,
-                total: currentCartMoneyTotal,
-                status: 'pending',
+            await api.post('/orders', {
                 address: trimmedDeliveryAddress,
                 items: allCartLineItems.map((oneItem) => ({
-                    id: oneItem.id,
-                    name: oneItem.name,
-                    price: oneItem.price,
-                    qty: oneItem.qty,
+                    productId: oneItem.id,
+                    quantity: oneItem.qty,
                 })),
-            };
-
-            await fetch(ordersApi, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(newOrderPayload),
             });
 
             dispatchReduxAction(
-                addNotification({ message: 'Entities.Order placed successfully!', type: 'success' })
+                addNotification({ message: 'Order placed successfully!', type: 'success' })
             );
 
             clearCart();
             navigateToRoute('/orders');
         } catch (networkError) {
             dispatchReduxAction(
-                addNotification({ message: 'Failed to place order.', type: 'error' })
+                addNotification({
+                    message: networkError.response?.data?.message || 'Failed to place order.',
+                    type: 'error',
+                })
             );
         }
 
@@ -151,25 +119,21 @@ export default function CartPage({ ordersApi }) {
                         <span className="cart-item-price">${oneCartItem.price}</span>
                         <div className="cart-qty-box">
                             <button
-                                onClick={() =>
-                                    handleDecreaseItemQuantity(oneCartItem.id, oneCartItem.qty)
-                                }
+                                onClick={() => updateQty(oneCartItem.id, oneCartItem.qty - 1)}
                                 className="cart-qty-btn"
                             >
                                 -
                             </button>
                             <span className="cart-qty-display">{oneCartItem.qty}</span>
                             <button
-                                onClick={() =>
-                                    handleIncreaseItemQuantity(oneCartItem.id, oneCartItem.qty)
-                                }
+                                onClick={() => updateQty(oneCartItem.id, oneCartItem.qty + 1)}
                                 className="cart-qty-btn"
                             >
                                 +
                             </button>
                         </div>
                         <button
-                            onClick={() => handleRequestRemoveCartItem(oneCartItem.id)}
+                            onClick={() => setCartItemPendingDeleteId(oneCartItem.id)}
                             className="cart-remove-btn"
                         >
                             Remove
@@ -185,7 +149,7 @@ export default function CartPage({ ordersApi }) {
                     id="delivery-address-input"
                     type="text"
                     value={deliveryAddressInputValue}
-                    onChange={handleDeliveryAddressInputChange}
+                    onChange={(event) => setDeliveryAddressInputValue(event.target.value)}
                     placeholder="Street, building, apartment, city"
                     className="cart-address-input"
                     required
@@ -202,7 +166,7 @@ export default function CartPage({ ordersApi }) {
                         className="primary-action-btn"
                         disabled={isPlacingOrder}
                     >
-                        {isPlacingOrder ? 'Placing...' : 'Place Entities.Order'}
+                        {isPlacingOrder ? 'Placing...' : 'Place Order'}
                     </button>
                 </div>
             </div>
@@ -210,7 +174,7 @@ export default function CartPage({ ordersApi }) {
                 isOpen={cartItemPendingDeleteId !== null}
                 message="Remove this item from your cart?"
                 onConfirm={handleConfirmRemoveCartItem}
-                onCancel={handleCancelRemoveCartItem}
+                onCancel={() => setCartItemPendingDeleteId(null)}
             />
         </div>
     );

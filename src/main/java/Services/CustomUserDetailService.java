@@ -1,7 +1,7 @@
-package java.Services;
+package main.java.Services;
 
-import java.Entities.User;
-import java.Repositories.UserRepository;
+import main.java.Entities.User;
+import main.java.Repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

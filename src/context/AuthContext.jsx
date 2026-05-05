@@ -5,6 +5,17 @@ import { setAllItems, selectCartItems } from '../store/cartSlice';
 
 const AuthContext = createContext();
 
+function normalizeUser(userObjectOrNull) {
+    if (!userObjectOrNull) return null;
+
+    return {
+        id: userObjectOrNull.id,
+        full_name: userObjectOrNull.fullName || userObjectOrNull.full_name,
+        email: userObjectOrNull.email,
+        role: String(userObjectOrNull.role || 'user').toLowerCase(),
+    };
+}
+
 function buildCartStorageKeyForUser(userObjectOrNull) {
     if (!userObjectOrNull) return 'cart:guest';
 
@@ -33,7 +44,7 @@ export function AuthProvider({ children }) {
     const [currentLoggedInUser, setCurrentLoggedInUser] = useState(() => {
         const savedUserJson = localStorage.getItem('user');
 
-        if (savedUserJson) return JSON.parse(savedUserJson);
+        if (savedUserJson) return normalizeUser(JSON.parse(savedUserJson));
 
         return null;
     });
@@ -53,6 +64,7 @@ export function AuthProvider({ children }) {
     }, [currentLoggedInUser, dispatchReduxAction]);
 
     const hasMountedForAutoSaveRef = useRef(false);
+
     useEffect(() => {
         if (!hasMountedForAutoSaveRef.current) {
             hasMountedForAutoSaveRef.current = true;
@@ -66,25 +78,28 @@ export function AuthProvider({ children }) {
         );
     }, [currentCartItemsLiveSnapshot, currentLoggedInUser]);
 
-    const loginUser = (userDataToStore) => {
+    const loginUser = (userDataToStore, tokenToStore) => {
+        const safeUserObjectForSession = normalizeUser(userDataToStore);
+
         const previousOwnerCartKey = buildCartStorageKeyForUser(currentLoggedInUser);
         localStorage.setItem(
             previousOwnerCartKey,
             JSON.stringify(currentCartItemsLiveSnapshot)
         );
 
-        const incomingUserCartKey = buildCartStorageKeyForUser(userDataToStore);
+        const incomingUserCartKey = buildCartStorageKeyForUser(safeUserObjectForSession);
         const incomingUserSavedCartItems = readSavedCartFromStorage(incomingUserCartKey);
 
         dispatchReduxAction(setAllItems(incomingUserSavedCartItems));
 
-        setCurrentLoggedInUser(userDataToStore);
+        setCurrentLoggedInUser(safeUserObjectForSession);
 
-        localStorage.setItem('user', JSON.stringify(userDataToStore));
+        localStorage.setItem('user', JSON.stringify(safeUserObjectForSession));
+        localStorage.setItem('token', tokenToStore);
 
         dispatchReduxAction(
             addNotification({
-                message: `Welcome back, ${userDataToStore.full_name}!`,
+                message: `Welcome back, ${safeUserObjectForSession.full_name}!`,
                 type: 'success',
             })
         );
@@ -102,6 +117,7 @@ export function AuthProvider({ children }) {
         setCurrentLoggedInUser(null);
 
         localStorage.removeItem('user');
+        localStorage.removeItem('token');
 
         dispatchReduxAction(
             addNotification({

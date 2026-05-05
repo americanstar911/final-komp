@@ -1,8 +1,8 @@
-package java.Services;
+package main.java.Services;
 
-import java.Dto.CategoryRequest;
-import java.Entities.Category;
-import java.Repositories.CategoryRepository;
+import main.java.Dto.CategoryRequest;
+import main.java.Entities.Category;
+import main.java.Repositories.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

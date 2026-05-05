@@ -1,8 +1,8 @@
-package java.Controllers;
+package main.java.Controllers;
 
-import java.Dto.ProductRequest;
-import java.Entities.Product;
-import java.Services.ProductService;
+import main.java.Dto.ProductRequest;
+import main.java.Entities.Product;
+import main.java.Services.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

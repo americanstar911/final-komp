@@ -1,9 +1,9 @@
-package java.Controllers;
+package main.java.Controllers;
 
-import java.Dto.AuthResponse;
-import java.Dto.LoginRequest;
-import java.Dto.RegisterRequest;
-import java.Services.AuthService;
+import main.java.Dto.AuthResponse;
+import main.java.Dto.LoginRequest;
+import main.java.Dto.RegisterRequest;
+import main.java.Services.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

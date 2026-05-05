@@ -1,6 +1,6 @@
-package java.Entities.order;
+package main.java.Entities.order;
 
-import java.Entities.Product;
+import main.java.Entities.Product;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -21,11 +21,11 @@ public class OrderItem {
     private Double price;
 
     @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "order_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
-    @ManyToOne
-    @JoinColumn(name = "product_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 }

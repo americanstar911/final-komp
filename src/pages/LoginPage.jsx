@@ -1,32 +1,19 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import bcrypt from 'bcryptjs';
 import { useAuth } from '../context/AuthContext';
 import { useAppDispatch } from '../store';
 import { addNotification } from '../store/notificationSlice';
+import api from '../api/api';
 
-export default function LoginPage({ usersApi }) {
+export default function LoginPage() {
     const [emailInputValue, setEmailInputValue] = useState('');
-
     const [passwordInputValue, setPasswordInputValue] = useState('');
-
     const [errorMessage, setErrorMessage] = useState('');
-
     const [isLoggingIn, setIsLoggingIn] = useState(false);
 
     const { loginUser } = useAuth();
-
     const dispatchReduxAction = useAppDispatch();
-
     const navigateToRoute = useNavigate();
-
-    const handleEmailInputChange = (inputChangeEvent) => {
-        setEmailInputValue(inputChangeEvent.target.value);
-    };
-
-    const handlePasswordInputChange = (inputChangeEvent) => {
-        setPasswordInputValue(inputChangeEvent.target.value);
-    };
 
     const handleLoginFormSubmit = async (formSubmitEvent) => {
         formSubmitEvent.preventDefault();
@@ -35,45 +22,15 @@ export default function LoginPage({ usersApi }) {
         setIsLoggingIn(true);
 
         try {
-            const usersByEmailResponse = await fetch(`${usersApi}?email=${emailInputValue}`);
+            const response = await api.post('/auth/login', {
+                email: emailInputValue,
+                password: passwordInputValue,
+            });
 
-            const matchingUsersList = await usersByEmailResponse.json();
+            const { token, user } = response.data;
+            loginUser(user, token);
 
-            if (matchingUsersList.length === 0) {
-                setErrorMessage('Entities.User not found');
-                dispatchReduxAction(
-                    addNotification({ message: 'Login failed: Entities.User not found', type: 'error' })
-                );
-                setIsLoggingIn(false);
-                return;
-            }
-
-            const foundUserRecord = matchingUsersList[0];
-
-            const passwordMatchesHash = await bcrypt.compare(
-                passwordInputValue,
-                foundUserRecord.password_hash
-            );
-
-            if (!passwordMatchesHash) {
-                setErrorMessage('Wrong password');
-                dispatchReduxAction(
-                    addNotification({ message: 'Login failed: Wrong password', type: 'error' })
-                );
-                setIsLoggingIn(false);
-                return;
-            }
-
-            const safeUserObjectForSession = {
-                id: foundUserRecord.id,
-                full_name: foundUserRecord.full_name,
-                email: foundUserRecord.email,
-                role: foundUserRecord.role,
-            };
-
-            loginUser(safeUserObjectForSession);
-
-            if (safeUserObjectForSession.role === 'admin') {
+            if (String(user.role).toLowerCase() === 'admin') {
                 navigateToRoute('/admin');
             } else {
                 navigateToRoute('/products');
@@ -81,7 +38,7 @@ export default function LoginPage({ usersApi }) {
         } catch (networkError) {
             setErrorMessage('Login failed');
             dispatchReduxAction(
-                addNotification({ message: 'Login failed: Network error', type: 'error' })
+                addNotification({ message: 'Login failed: wrong email or password', type: 'error' })
             );
         }
 
@@ -98,7 +55,7 @@ export default function LoginPage({ usersApi }) {
                     <input
                         type="email"
                         value={emailInputValue}
-                        onChange={handleEmailInputChange}
+                        onChange={(event) => setEmailInputValue(event.target.value)}
                         required
                     />
                 </div>
@@ -107,7 +64,7 @@ export default function LoginPage({ usersApi }) {
                     <input
                         type="password"
                         value={passwordInputValue}
-                        onChange={handlePasswordInputChange}
+                        onChange={(event) => setPasswordInputValue(event.target.value)}
                         required
                     />
                 </div>
@@ -116,7 +73,7 @@ export default function LoginPage({ usersApi }) {
                 </button>
             </form>
             <p className="auth-switch">
-                Don't have an account? <Link to="/register">Register</Link>
+                Don&apos;t have an account? <Link to="/register">Register</Link>
             </p>
         </div>
     );

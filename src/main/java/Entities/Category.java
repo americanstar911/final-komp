@@ -1,5 +1,6 @@
-package java.Entities;
+package main.java.Entities;
 
+import main.java.Entities.Product;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;

@@ -4,8 +4,13 @@ import { useAuth } from '../context/AuthContext';
 import { useAppDispatch } from '../store';
 import { addNotification } from '../store/notificationSlice';
 import ConfirmModal from '../components/ConfirmModal';
+import api from '../api/api';
 
-export default function AdminPage({ productsApi, usersApi, ordersApi, categoriesApi }) {
+function getProductCategoryId(product) {
+    return product.category?.id || product.categoryId || product.category_id;
+}
+
+export default function AdminPage() {
     const [allProducts, setAllProducts] = useState([]);
     const [allCategories, setAllCategories] = useState([]);
     const [allUsers, setAllUsers] = useState([]);
@@ -17,26 +22,31 @@ export default function AdminPage({ productsApi, usersApi, ordersApi, categories
     const [orderPendingDeleteId, setOrderPendingDeleteId] = useState(null);
 
     const { user: currentLoggedInUser } = useAuth();
-
     const dispatchReduxAction = useAppDispatch();
 
     useEffect(() => {
-        fetch(productsApi)
-            .then((r) => r.json())
-            .then((list) => setAllProducts(list));
+        async function loadAdminData() {
+            try {
+                const [productsResponse, categoriesResponse, usersResponse, ordersResponse] = await Promise.all([
+                    api.get('/products'),
+                    api.get('/categories'),
+                    api.get('/api/users'),
+                    api.get('/admin/orders'),
+                ]);
 
-        fetch(categoriesApi)
-            .then((r) => r.json())
-            .then((list) => setAllCategories(list));
+                setAllProducts(productsResponse.data);
+                setAllCategories(categoriesResponse.data);
+                setAllUsers(usersResponse.data);
+                setAllOrders(ordersResponse.data);
+            } catch (networkError) {
+                dispatchReduxAction(
+                    addNotification({ message: 'Failed to load admin data.', type: 'error' })
+                );
+            }
+        }
 
-        fetch(usersApi)
-            .then((r) => r.json())
-            .then((list) => setAllUsers(list));
-
-        fetch(ordersApi)
-            .then((r) => r.json())
-            .then((list) => setAllOrders(list));
-    }, [productsApi, usersApi, ordersApi, categoriesApi]);
+        loadAdminData();
+    }, [dispatchReduxAction]);
 
     const resolveCategoryNameFromId = (categoryIdToResolve) => {
         const matchingCategoryRow = allCategories.find(
@@ -49,16 +59,12 @@ export default function AdminPage({ productsApi, usersApi, ordersApi, categories
         const matchingUserRow = allUsers.find(
             (oneUser) => oneUser.id === userIdToResolve
         );
-        return matchingUserRow ? matchingUserRow.full_name : `user #${userIdToResolve}`;
-    };
-
-    const handleRequestDeleteProduct = (productId) => {
-        setProductPendingDeleteId(productId);
+        return matchingUserRow ? (matchingUserRow.fullName || matchingUserRow.full_name) : `user #${userIdToResolve}`;
     };
 
     const handleConfirmDeleteProduct = async () => {
         try {
-            await fetch(`${productsApi}/${productPendingDeleteId}`, { method: 'DELETE' });
+            await api.delete(`/products/${productPendingDeleteId}`);
 
             setAllProducts((previousProductsList) =>
                 previousProductsList.filter(
@@ -67,7 +73,7 @@ export default function AdminPage({ productsApi, usersApi, ordersApi, categories
             );
 
             dispatchReduxAction(
-                addNotification({ message: 'Entities.User.Product deleted.', type: 'info' })
+                addNotification({ message: 'Product deleted.', type: 'info' })
             );
         } catch (networkError) {
             dispatchReduxAction(
@@ -78,17 +84,9 @@ export default function AdminPage({ productsApi, usersApi, ordersApi, categories
         setProductPendingDeleteId(null);
     };
 
-    const handleCancelDeleteProduct = () => {
-        setProductPendingDeleteId(null);
-    };
-
-    const handleRequestDeleteCategory = (categoryId) => {
-        setCategoryPendingDeleteId(categoryId);
-    };
-
     const handleConfirmDeleteCategory = async () => {
         try {
-            await fetch(`${categoriesApi}/${categoryPendingDeleteId}`, { method: 'DELETE' });
+            await api.delete(`/categories/${categoryPendingDeleteId}`);
 
             setAllCategories((previousCategoriesList) =>
                 previousCategoriesList.filter(
@@ -97,7 +95,7 @@ export default function AdminPage({ productsApi, usersApi, ordersApi, categories
             );
 
             dispatchReduxAction(
-                addNotification({ message: 'Entities.Category deleted.', type: 'info' })
+                addNotification({ message: 'Category deleted.', type: 'info' })
             );
         } catch (networkError) {
             dispatchReduxAction(
@@ -108,25 +106,16 @@ export default function AdminPage({ productsApi, usersApi, ordersApi, categories
         setCategoryPendingDeleteId(null);
     };
 
-    const handleCancelDeleteCategory = () => {
-        setCategoryPendingDeleteId(null);
-    };
-
-    const handleRequestDeleteUser = (userId) => {
-        if (userId === currentLoggedInUser.id) return;
-        setUserPendingDeleteId(userId);
-    };
-
     const handleConfirmDeleteUser = async () => {
         try {
-            await fetch(`${usersApi}/${userPendingDeleteId}`, { method: 'DELETE' });
+            await api.delete(`/api/users/${userPendingDeleteId}`);
 
             setAllUsers((previousUsersList) =>
                 previousUsersList.filter((oneUser) => oneUser.id !== userPendingDeleteId)
             );
 
             dispatchReduxAction(
-                addNotification({ message: 'Entities.User removed.', type: 'info' })
+                addNotification({ message: 'User removed.', type: 'info' })
             );
         } catch (networkError) {
             dispatchReduxAction(
@@ -134,10 +123,6 @@ export default function AdminPage({ productsApi, usersApi, ordersApi, categories
             );
         }
 
-        setUserPendingDeleteId(null);
-    };
-
-    const handleCancelDeleteUser = () => {
         setUserPendingDeleteId(null);
     };
 
@@ -156,7 +141,7 @@ export default function AdminPage({ productsApi, usersApi, ordersApi, categories
 
     const handleConfirmDeleteOrder = async () => {
         try {
-            await fetch(`${ordersApi}/${orderPendingDeleteId}`, { method: 'DELETE' });
+            await api.delete(`/admin/orders/${orderPendingDeleteId}`);
 
             setAllOrders((previousOrdersList) =>
                 previousOrdersList.filter(
@@ -165,18 +150,14 @@ export default function AdminPage({ productsApi, usersApi, ordersApi, categories
             );
 
             dispatchReduxAction(
-                addNotification({ message: 'Entities.Order removed.', type: 'info' })
+                addNotification({ message: 'Order removed.', type: 'info' })
             );
         } catch (networkError) {
             dispatchReduxAction(
-                addNotification({ message: 'Failed to delete Entities.Order.', type: 'error' })
+                addNotification({ message: 'Failed to delete order.', type: 'error' })
             );
         }
 
-        setOrderPendingDeleteId(null);
-    };
-
-    const handleCancelDeleteOrder = () => {
         setOrderPendingDeleteId(null);
     };
 
@@ -200,7 +181,7 @@ export default function AdminPage({ productsApi, usersApi, ordersApi, categories
                         <span className="admin-text">
                             {oneProduct.name} - ${oneProduct.price}{' '}
                             <span className="admin-muted">
-                                ({resolveCategoryNameFromId(oneProduct.category_id)})
+                                ({resolveCategoryNameFromId(getProductCategoryId(oneProduct))})
                             </span>
                         </span>
                         <div className="admin-actions">
@@ -211,7 +192,7 @@ export default function AdminPage({ productsApi, usersApi, ordersApi, categories
                                 Edit
                             </Link>
                             <button
-                                onClick={() => handleRequestDeleteProduct(oneProduct.id)}
+                                onClick={() => setProductPendingDeleteId(oneProduct.id)}
                                 className="delete-text-btn"
                             >
                                 Delete
@@ -233,7 +214,7 @@ export default function AdminPage({ productsApi, usersApi, ordersApi, categories
                                 Edit
                             </Link>
                             <button
-                                onClick={() => handleRequestDeleteCategory(oneCategory.id)}
+                                onClick={() => setCategoryPendingDeleteId(oneCategory.id)}
                                 className="delete-text-btn"
                             >
                                 Delete
@@ -247,14 +228,14 @@ export default function AdminPage({ productsApi, usersApi, ordersApi, categories
                 {allUsers.map((oneUser) => (
                     <div key={oneUser.id} className="admin-row">
                         <span className="admin-text">
-                            {oneUser.full_name}{' '}
+                            {oneUser.fullName || oneUser.full_name}{' '}
                             <span className="admin-muted">
                                 ({oneUser.email} - {oneUser.role})
                             </span>
                         </span>
                         {oneUser.id !== currentLoggedInUser.id && (
                             <button
-                                onClick={() => handleRequestDeleteUser(oneUser.id)}
+                                onClick={() => setUserPendingDeleteId(oneUser.id)}
                                 className="delete-text-btn"
                             >
                                 Delete
@@ -279,13 +260,12 @@ export default function AdminPage({ productsApi, usersApi, ordersApi, categories
                                     thisOrderIsCancelled ? 'admin-Entities.Order-card-cancelled' : ''
                                 }`}
                             >
-
                                 <div className="admin-Entities.Order-header">
                                     <strong className="admin-Entities.Order-number">
-                                        Entities.Order #{oneOrder.id}
+                                        Order #{oneOrder.id}
                                     </strong>
                                     <span className="admin-Entities.Order-buyer">
-                                        by {resolveUserNameFromId(oneOrder.user_id)}
+                                        by {oneOrder.userFullName || resolveUserNameFromId(oneOrder.userId)}
                                     </span>
                                     <span
                                         className={`admin-Entities.Order-status admin-Entities.Order-status-${oneOrder.status}`}
@@ -294,9 +274,9 @@ export default function AdminPage({ productsApi, usersApi, ordersApi, categories
                                     </span>
                                 </div>
                                 <div className="admin-Entities.Order-items">
-                                    {oneOrder.items?.map((oneOrderItem, rowIndex) => (
-                                        <div key={rowIndex} className="admin-Entities.Order-item-row">
-                                            {oneOrderItem.name} × {oneOrderItem.qty} —{' '}
+                                    {oneOrder.items?.map((oneOrderItem) => (
+                                        <div key={oneOrderItem.id} className="admin-Entities.Order-item-row">
+                                            {oneOrderItem.name} × {oneOrderItem.quantity} —{' '}
                                             ${oneOrderItem.price}
                                         </div>
                                     ))}
@@ -336,25 +316,25 @@ export default function AdminPage({ productsApi, usersApi, ordersApi, categories
                 isOpen={productPendingDeleteId !== null}
                 message="Are you sure you want to delete this product? This action cannot be undone."
                 onConfirm={handleConfirmDeleteProduct}
-                onCancel={handleCancelDeleteProduct}
+                onCancel={() => setProductPendingDeleteId(null)}
             />
             <ConfirmModal
                 isOpen={categoryPendingDeleteId !== null}
                 message="Are you sure you want to delete this category? This action cannot be undone."
                 onConfirm={handleConfirmDeleteCategory}
-                onCancel={handleCancelDeleteCategory}
+                onCancel={() => setCategoryPendingDeleteId(null)}
             />
             <ConfirmModal
                 isOpen={userPendingDeleteId !== null}
                 message="Are you sure you want to delete this user? This action cannot be undone."
                 onConfirm={handleConfirmDeleteUser}
-                onCancel={handleCancelDeleteUser}
+                onCancel={() => setUserPendingDeleteId(null)}
             />
             <ConfirmModal
                 isOpen={orderPendingDeleteId !== null}
-                message="Are you sure you want to delete this Entities.Order? This action cannot be undone."
+                message="Are you sure you want to delete this order? This action cannot be undone."
                 onConfirm={handleConfirmDeleteOrder}
-                onCancel={handleCancelDeleteOrder}
+                onCancel={() => setOrderPendingDeleteId(null)}
             />
         </div>
     );
