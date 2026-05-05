@@ -8,7 +8,7 @@ import main.java.Entities.order.OrderItem;
 import main.java.Repositories.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import main.java.Services.OrderService;
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,10 +21,7 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping("/orders")
-    public OrderResponse createOrder(
-            @RequestBody CreateOrderRequest request,
-            Authentication authentication
-    ) {
+    public OrderResponse createOrder(@RequestBody CreateOrderRequest request, Authentication authentication) {
         return orderService.createOrder(request, authentication);
     }
 
