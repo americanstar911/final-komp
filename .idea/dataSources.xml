@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="CompArchFinalProjectDB@localhost" uuid="538bb43c-a1da-420c-9156-07af5e17f755">
+    <data-source source="LOCAL" name="CompArchFinalProjectDB@localhost" uuid="c11f4a07-b9d7-4f4b-9f85-1fe4bb06b8f1">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
