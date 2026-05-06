@@ -14,7 +14,7 @@ import OrdersPage from './src/pages/OrdersPage';
 import AdminPage from './src/pages/AdminPage';
 import CategoryFormPage from './src/pages/CategoryFormPage';
 
-const API_BASE = 'http://localhost:3001';
+const API_BASE = 'http://localhost:1010';
 
 const PRODUCTS_API = `${API_BASE}/products`;
 const USERS_API = `${API_BASE}/users`;

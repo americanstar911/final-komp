@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: final-komp
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/CompArchFinal
+    username: azat
+    password: azat07
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+server:
+  port: 1010
+
+jwt:
+  secret: "your-very-long-secret-key-with-at-least-32-characters-12345"
+  expiration: 86400000
